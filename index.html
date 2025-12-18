@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مكتب إنجاز القمم</title>
+    <style>
+        :root { --primary: #1a2a6c; --gold: #d4af37; --bg: #f0f2f5; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; text-align: center; }
+        .card { background: white; max-width: 400px; margin: 20px auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 5px solid var(--gold); }
+        input[type="file"] { width: 100%; padding: 12px; margin: 20px 0; border-radius: 10px; border: 2px solid #ddd; }
+        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        #status { margin-top: 20px; padding: 10px; border-radius: 10px; display: none; word-wrap: break-word; }
+        .success { background: #e8f5e9; color: #2e7d32; display: block !important; }
+        .error { background: #ffebee; color: #c62828; display: block !important; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h3>مكتب إنجاز القمم</h3>
+        <p>جرب الإرسال الآن يا أبو راجه</p>
+        <input type="file" id="fileInput">
+        <button onclick="uploadNow()" id="btn">إرسال للمكتب</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        function uploadNow() {
+            const fileInput = document.getElementById('fileInput');
+            const status = document.getElementById('status');
+            const btn = document.getElementById('btn');
+
+            if (!fileInput.files.length) {
+                alert("اختر ملفاً أولاً");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const fileName = encodeURIComponent(Date.now() + "-" + file.name);
+            const url = "https://qxhzziobyxiuxhnjnghf.supabase.co/storage/v1/object/receipts/" + fileName;
+            const key = "EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4aHp6aW9ieGl1eGhuam5naGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjU5OTgsImV4cCI6MjA4MTY0MTk5OH0.xn9WxfO6mhh53Cl4HFEkGcSJN1A24iRjn2pvPv5_P0Q";
+
+            btn.disabled = true;
+            btn.innerText = "جاري الإرسال...";
+            status.style.display = "none";
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("apikey", key);
+            xhr.setRequestHeader("Authorization", "Bearer " + key);
+            xhr.setRequestHeader("Content-Type", file.type);
+
+            xhr.onload = function () {
+                btn.disabled = false;
+                btn.innerText = "إرسال للمكتب";
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    status.className = "success";
+                    status.innerText = "✅ تم الإرسال بنجاح!";
+                    fileInput.value = "";
+                } else {
+                    status.className = "error";
+                    status.innerText = "❌ فشل: " + xhr.status + " " + xhr.responseText;
+                }
+            };
+
+            xhr.onerror = function () {
+                btn.disabled = false;
+                btn.innerText = "إرسال للمكتب";
+                status.className = "error";
+                status.innerText = "❌ خطأ في الاتصال. تأكد من الإنترنت أو جرب متصفحاً آخر.";
+            };
+
+            xhr.send(file);
+        }
+    </script>
+</body>
+</html>
